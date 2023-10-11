@@ -14,15 +14,44 @@ namespace Testing
 			_conn = conn;
 		}
 
-        public IEnumerable<product> GetAllProducts()
+        public Product AssignCategory()
         {
-			return _conn.Query<product>("Select * From Products;");
+            var categoryList = GetCategories();
+            var product = new Product();
+            product.Categories = categoryList;
+
+            return product;
+
         }
 
-        public product GetProduct(int id)
+        public IEnumerable<Product> GetAllProducts()
         {
-            return _conn.QuerySingle<product>("SELECT * FROM PRODUCTS WHERE PRODUCTID = @id",
+			return _conn.Query<Product>("Select * From Products;");
+        }
+
+        public IEnumerable<Category> GetCategories()
+        {
+            return _conn.Query<Category>("SELECT * FROM categories;");
+
+        }
+
+        public Product GetProduct(int id)
+        {
+            return _conn.QuerySingle<Product>("SELECT * FROM PRODUCTS WHERE PRODUCTID = @id",
                 new { id = id });
+        }
+
+        public void InsertProduct(Product productToInsert)
+        {
+            _conn.Execute("INSERT INTO products (NAME, PRICE, CATEGORYID) VALUES (@name, @price, @categoryID);",
+                new { name = productToInsert.Name, price = productToInsert.Price, categoryID = productToInsert.CategoryID });
+
+        }
+
+        public void UpdateProduct(Product product)
+        {
+            _conn.Execute("UPDATE products SET Name = @name, Price = @price WHERE ProductID = @id",
+                new { name = product.Name, price = product.Price, id = product.ProductID });
         }
 
     }
